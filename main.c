@@ -12,9 +12,6 @@ int semafor;
 
 static void poczatek(void);
 static void utworz_nowy_semafor(void);
-static void ustaw_semafor(void);
-static void semafor_p(int);
-static void semafor_v(int);
 static void usun_semafor(void);
 
 int const count = 3;
@@ -70,44 +67,6 @@ static void utworz_nowy_semafor(){
     }  
 }
 
-static void ustaw_semafor(void){
-    int ustaw_sem;
-    ustaw_sem = semctl(semafor, 0, SETVAL, 0);
-    if(ustaw_sem == -1){
-        perror("Nie mozna ustawic semafora.");
-        exit(EXIT_FAILURE);
-    } else{
-        printf("Semafor zostal ustawiony.\n");
-    }
-}
-static void semafor_p(int nr){
-    int zmien_sem;
-    struct sembuf bufor_sem;
-    bufor_sem.sem_num = nr;
-    bufor_sem.sem_op = -1;
-    bufor_sem.sem_flg = SEM_UNDO;
-    zmien_sem = semop(semafor, &bufor_sem, 1);
-    if(zmien_sem == -1){
-        perror("Nie moglem zamknac seamfora");
-        exit(EXIT_FAILURE);
-    } else{
-        printf("Semafor zostal zamkniety.\n");
-    }
-}
-static void semafor_v(int nr){
-    int zmien_sem;
-    struct sembuf bufor_sem;
-    bufor_sem.sem_num = nr;
-    bufor_sem.sem_op = 1;
-    bufor_sem.sem_flg = SEM_UNDO;
-    zmien_sem = semop(semafor, &bufor_sem, 1);
-    if(zmien_sem == -1){
-        perror("Nie moglem otworzyc seamfora");
-        exit(EXIT_FAILURE);
-    } else{
-        printf("Semafor zostal otwarty.\n");
-    }
-}
 static void usun_semafor(void){
     int sem;
     sem = semctl(semafor, 0, IPC_RMID);
