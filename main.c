@@ -75,6 +75,6 @@ static void usun_semafor(void){
         perror("Nie mozna usunac seamfora.");
         exit(EXIT_FAILURE);
     } else{
-        printf("Seamfor zostal usuniety: %d\n", sem);
+        printf("Semafor zostal usuniety: %d\n", sem);
     }
 }

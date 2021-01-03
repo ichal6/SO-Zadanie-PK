@@ -7,13 +7,11 @@
 
 int semafor;
 
-static void poczatek(void);
 static void utworz_nowy_semafor(void);
 static void semafor_p(int);
 static void semafor_v(int);
 
 int main(){
-    poczatek();
     utworz_nowy_semafor();
 
     semafor_p(2);
@@ -25,18 +23,12 @@ int main(){
     semafor_v(3);
 }
 
-static void poczatek(void){
-    printf("Proces P1.\n");
-}
-
 static void utworz_nowy_semafor(){
     semafor=semget(1001, 5, 0600|IPC_CREAT);
     if(semafor==-1){
         perror("Nie moglem utworzyc nowego semafora.");
         exit(EXIT_FAILURE);
-    } else{
-        printf("Semafor zostal utworzony: %d\n", semafor);
-    }  
+    }
 }
 
 static void semafor_p(int nr){
@@ -49,8 +41,6 @@ static void semafor_p(int nr){
     if(zmien_sem == -1){
         perror("Nie moglem zamknac seamfora");
         exit(EXIT_FAILURE);
-    } else{
-        printf("Semafor zostal zamkniety.\n");
     }
 }
 static void semafor_v(int nr){
@@ -63,7 +53,5 @@ static void semafor_v(int nr){
     if(zmien_sem == -1){
         perror("Nie moglem otworzyc seamfora");
         exit(EXIT_FAILURE);
-    } else{
-        printf("Semafor zostal otwarty.\n");
     }
 }
