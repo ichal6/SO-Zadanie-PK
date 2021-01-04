@@ -13,12 +13,14 @@ int semafor;
 static void poczatek(void);
 static void utworz_nowy_semafor(void);
 static void usun_semafor(void);
+static void ustaw_semafor(void);
 
 int const count = 3;
 
 int main(){
     poczatek();
     utworz_nowy_semafor();
+    ustaw_semafor();
 
     char cmd1[20];
     char cmd2[20];
@@ -76,5 +78,18 @@ static void usun_semafor(void){
         exit(EXIT_FAILURE);
     } else{
         printf("Semafor zostal usuniety: %d\n", sem);
+    }
+}
+
+static void ustaw_semafor(void){
+    int ustaw_sem;
+    const int sizeOfSemafor = 5;
+
+    for(int i = 0; i < sizeOfSemafor; i++){
+        ustaw_sem = semctl(semafor, i, SETVAL, 0);
+        if(ustaw_sem == -1){
+            perror("Nie mozna ustawic semafora.");
+            exit(EXIT_FAILURE);
+        }
     }
 }
