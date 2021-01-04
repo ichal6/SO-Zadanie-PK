@@ -42,7 +42,7 @@ int main(int argc, char* argv[]){
 }
 
 static void getSemaphore(){
-    semaphoreId=semget(keyForsemaphore, 5, 0600|IPC_CREAT);
+    semaphoreId=semget(keyForsemaphore, 5, 0400|IPC_CREAT);
     if(semaphoreId==-1){
         perror("Problem with create a semaphore.");
         exit(EXIT_FAILURE);
