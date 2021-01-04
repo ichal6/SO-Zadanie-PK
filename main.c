@@ -16,6 +16,7 @@ static void usun_semafor(void);
 static void ustaw_semafor(void);
 
 int const count = 3;
+key_t keyForsemaphore;
 
 int main(){
     poczatek();
@@ -24,6 +25,7 @@ int main(){
 
     char cmd1[20];
     char cmd2[20];
+    char secondArgument[20];
     
     for(int i = 0; i < count; i++)
     {
@@ -37,7 +39,8 @@ int main(){
             case 0:
                 sprintf(cmd1, "./P%d", i+1);
                 sprintf(cmd2, "P%d", i+1);
-                if(execl(cmd1, cmd2, NULL) == -1){
+                sprintf(secondArgument, "%d", keyForsemaphore);
+                if(execl(cmd1, cmd2, secondArgument, NULL) == -1){
                     perror("Execl error");
                     exit(2);
                 }
@@ -60,7 +63,12 @@ static void poczatek(void){
 }
 
 static void utworz_nowy_semafor(){
-    semafor=semget(1001, 5, 0600|IPC_CREAT);
+    if((keyForsemaphore = ftok(".",'Z')) == -1)
+    {
+        perror("Problem with generate a key!");
+        exit(2);
+    }
+    semafor=semget(keyForsemaphore, 5, 0600|IPC_CREAT);
     if(semafor==-1){
         perror("Nie moglem utworzyc nowego semafora.");
         exit(EXIT_FAILURE);
