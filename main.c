@@ -8,24 +8,24 @@
 #include <sys/wait.h>
 
 
-int semafor;
+int semaphoreId;
 
-static void poczatek(void);
-static void utworz_nowy_semafor(void);
-static void usun_semafor(void);
-static void ustaw_semafor(void);
+static void programDescription(void);
+static void getSemaphore(void);
+static void deleteSemaphore(void);
+static void setSemaphore(void);
 
 int const count = 3;
 int const sizeOfSemafor = 5;
 key_t keyForsemaphore;
 
 int main(){
-    poczatek();
-    utworz_nowy_semafor();
-    ustaw_semafor();
+    programDescription();
+    getSemaphore();
+    setSemaphore();
 
-    char cmd1[20];
-    char cmd2[20];
+    char pathToProgram[20];
+    char firstArgument[20];
     char secondArgument[20];
     
     for(int i = 0; i < count; i++)
@@ -38,10 +38,10 @@ int main(){
                 exit(1);
                 break;
             case 0:
-                sprintf(cmd1, "./P%d", i+1);
-                sprintf(cmd2, "P%d", i+1);
+                sprintf(pathToProgram, "./P%d", i+1);
+                sprintf(firstArgument, "P%d", i+1);
                 sprintf(secondArgument, "%d", keyForsemaphore);
-                if(execl(cmd1, cmd2, secondArgument, NULL) == -1){
+                if(execl(pathToProgram, firstArgument, secondArgument, NULL) == -1){
                     perror("Execl error");
                     exit(2);
                 }
@@ -56,47 +56,49 @@ int main(){
         printf("Proces %d has ended with status: %d \n", pidWait, status);
     }
 
-    usun_semafor();
+    deleteSemaphore();
 }
 
-static void poczatek(void){
+static void programDescription(void){
     printf("Main program.\n");
 }
 
-static void utworz_nowy_semafor(){
+static void getSemaphore(){
     if((keyForsemaphore = ftok(".",'Z')) == -1)
     {
         perror("Problem with generate a key!");
         exit(2);
     }
-    semafor=semget(keyForsemaphore, 5, 0600|IPC_CREAT);
-    if(semafor==-1){
-        perror("Nie moglem utworzyc nowego semafora.");
+    semaphoreId=semget(keyForsemaphore, 5, 0600|IPC_CREAT);
+    if(semaphoreId==-1){
+        perror("Problem with create a semaphore.");
         exit(EXIT_FAILURE);
     } else{
-        printf("Semafor zostal utworzony: %d\n", semafor);
+        printf("Semaphore has created! Id - %d\n", semaphoreId);
     }  
 }
 
-static void usun_semafor(void){
+static void deleteSemaphore(void){
     int sem;
-    sem = semctl(semafor, 0, IPC_RMID);
+    sem = semctl(semaphoreId, 0, IPC_RMID);
 
     if(sem==-1){
-        perror("Nie mozna usunac seamfora.");
+        perror("Problem with delete a semaphore.");
         exit(EXIT_FAILURE);
     } else{
-        printf("Semafor zostal usuniety: %d\n", sem);
+        printf("Semaphore has deleted.\n");
     }
 }
 
-static void ustaw_semafor(void){
+static void setSemaphore(void){
     int ustaw_sem;
 
     for(int i = 0; i < sizeOfSemafor; i++){
-        ustaw_sem = semctl(semafor, i, SETVAL, 0);
+        ustaw_sem = semctl(semaphoreId, i, SETVAL, 0);
         if(ustaw_sem == -1){
-            perror("Nie mozna ustawic semafora.");
+            char errorMessage[100];
+            sprintf(errorMessage, "Problem with set a semaphore - %d", i);
+            perror(errorMessage);
             exit(EXIT_FAILURE);
         }
     }
