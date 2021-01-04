@@ -5,12 +5,12 @@
 #include <sys/ipc.h>
 #include <sys/sem.h>
 
-int semafor;
+int semaphoreId;
 key_t keyForsemaphore;
 
-static void utworz_nowy_semafor(void);
-static void semafor_p(int);
-static void semafor_v(int);
+static void getSemaphore(void);
+static void semaphoreDown(int);
+static void semaphoreUp(int);
 
 int main(int argc, char* argv[]){
     if(argc !=2){
@@ -19,46 +19,46 @@ int main(int argc, char* argv[]){
     }
     keyForsemaphore = atoi(argv[1]);
     printf("%s\n", argv[1]);
-    utworz_nowy_semafor();
+    getSemaphore();
 
-    semafor_p(2);
+    semaphoreDown(2);
 
     printf("Sekcja t11 procesu o PID=%d\n", getpid());
     printf("Sekcja t12 procesu o PID=%d\n", getpid());
     sleep(1);
 
-    semafor_v(3);
+    semaphoreUp(3);
 }
 
-static void utworz_nowy_semafor(){
-    semafor=semget(keyForsemaphore, 5, 0600|IPC_CREAT);
-    if(semafor==-1){
-        perror("Nie moglem utworzyc nowego semafora.");
+static void getSemaphore(){
+    semaphoreId=semget(keyForsemaphore, 5, 0600|IPC_CREAT);
+    if(semaphoreId==-1){
+        perror("Problem with create a semaphore.");
         exit(EXIT_FAILURE);
     }
 }
 
-static void semafor_p(int nr){
-    int zmien_sem;
-    struct sembuf bufor_sem;
-    bufor_sem.sem_num = nr;
-    bufor_sem.sem_op = -1;
-    bufor_sem.sem_flg = SEM_UNDO;
-    zmien_sem = semop(semafor, &bufor_sem, 1);
-    if(zmien_sem == -1){
-        perror("Nie moglem zamknac seamfora");
+static void semaphoreDown(int nr){
+    int returnValue;
+    struct sembuf semaphoreBufor;
+    semaphoreBufor.sem_num = nr;
+    semaphoreBufor.sem_op = -1;
+    semaphoreBufor.sem_flg = SEM_UNDO;
+    returnValue = semop(semaphoreId, &semaphoreBufor, 1);
+    if(returnValue == -1){
+        perror("Problem with close a semaphore.");
         exit(EXIT_FAILURE);
     }
 }
-static void semafor_v(int nr){
-    int zmien_sem;
-    struct sembuf bufor_sem;
-    bufor_sem.sem_num = nr;
-    bufor_sem.sem_op = 1;
-    bufor_sem.sem_flg = SEM_UNDO;
-    zmien_sem = semop(semafor, &bufor_sem, 1);
-    if(zmien_sem == -1){
-        perror("Nie moglem otworzyc seamfora");
+static void semaphoreUp(int nr){
+    int returnValue;
+    struct sembuf semaphoreBufor;
+    semaphoreBufor.sem_num = nr;
+    semaphoreBufor.sem_op = 1;
+    semaphoreBufor.sem_flg = SEM_UNDO;
+    returnValue = semop(semaphoreId, &semaphoreBufor, 1);
+    if(returnValue == -1){
+        perror("Problem with close a semaphore.");
         exit(EXIT_FAILURE);
     }
 }
