@@ -16,6 +16,7 @@ static void usun_semafor(void);
 static void ustaw_semafor(void);
 
 int const count = 3;
+int const sizeOfSemafor = 5;
 key_t keyForsemaphore;
 
 int main(){
@@ -91,7 +92,6 @@ static void usun_semafor(void){
 
 static void ustaw_semafor(void){
     int ustaw_sem;
-    const int sizeOfSemafor = 5;
 
     for(int i = 0; i < sizeOfSemafor; i++){
         ustaw_sem = semctl(semafor, i, SETVAL, 0);

@@ -6,12 +6,19 @@
 #include <sys/sem.h>
 
 int semafor;
+key_t keyForsemaphore;
 
 static void utworz_nowy_semafor(void);
 static void semafor_p(int);
 static void semafor_v(int);
 
-int main(){
+int main(int argc, char* argv[]){
+    if(argc !=2){
+        perror("Problem with size of list of arguments.");
+        exit(2);
+    }
+    keyForsemaphore = atoi(argv[1]);
+    printf("%s\n", argv[1]);
     utworz_nowy_semafor();
 
     semafor_p(0);
@@ -29,7 +36,7 @@ int main(){
 }
 
 static void utworz_nowy_semafor(){
-    semafor=semget(1001, 5, 0600|IPC_CREAT);
+    semafor=semget(keyForsemaphore, 5, 0600|IPC_CREAT);
     if(semafor==-1){
         perror("Nie moglem utworzyc nowego semafora.");
         exit(EXIT_FAILURE);
