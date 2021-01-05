@@ -4,6 +4,7 @@
 #include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/sem.h>
+#include <errno.h>
 
 int semaphoreId;
 key_t keyForsemaphore;
@@ -32,7 +33,7 @@ int main(int argc, char* argv[]){
 
 static void getSemaphore(){
     semaphoreId=semget(keyForsemaphore, 5, 0400|IPC_CREAT);
-    if(semaphoreId==-1){
+    if(semaphoreId==-1 && errno != EINTR){
         perror("Problem with create a semaphore.");
         exit(EXIT_FAILURE);
     }
@@ -45,7 +46,7 @@ static void semaphoreDown(int nr){
     semaphoreBufor.sem_op = -1;
     semaphoreBufor.sem_flg = SEM_UNDO;
     returnValue = semop(semaphoreId, &semaphoreBufor, 1);
-    if(returnValue == -1){
+    if(returnValue == -1  && errno != EINTR){
         perror("Problem with close a semaphore.");
         exit(EXIT_FAILURE);
     }
@@ -57,7 +58,7 @@ static void semaphoreUp(int nr){
     semaphoreBufor.sem_op = 1;
     semaphoreBufor.sem_flg = SEM_UNDO;
     returnValue = semop(semaphoreId, &semaphoreBufor, 1);
-    if(returnValue == -1){
+    if(returnValue == -1  && errno != EINTR){
         perror("Problem with close a semaphore.");
         exit(EXIT_FAILURE);
     }
