@@ -20,7 +20,6 @@ int main(int argc, char* argv[]){
         exit(2);
     }
     keyForsemaphore = atoi(argv[1]);
-    printf("%s\n", argv[1]);
     getSemaphore();
 
     semaphoreDown(0);
@@ -39,9 +38,13 @@ int main(int argc, char* argv[]){
 
 static void getSemaphore(){
     semaphoreId=semget(keyForsemaphore, 5, 0400|IPC_CREAT);
-    if(semaphoreId==-1 && errno != EINTR){
-       perror("Problem with create a semaphore.");
-        exit(EXIT_FAILURE);
+    if(semaphoreId==-1){
+        if(errno == EINTR){
+            getSemaphore();
+        } else{
+            perror("Problem with create a semaphore.");
+            exit(EXIT_FAILURE);
+        }
     }
 }
 
@@ -52,11 +55,16 @@ static void semaphoreDown(int nr){
     semaphoreBufor.sem_op = -1;
     semaphoreBufor.sem_flg = SEM_UNDO;
     returnValue = semop(semaphoreId, &semaphoreBufor, 1);
-    if(returnValue == -1  && errno != EINTR){
-        perror("Problem with close a semaphore.");
-        exit(EXIT_FAILURE);
+    if(returnValue == -1){
+        if(errno == EINTR){
+            semaphoreDown(nr);
+        } else{
+            perror("Problem with close a semaphore.");
+            exit(EXIT_FAILURE);
+        }
     }
 }
+
 static void semaphoreUp(int nr){
     int returnValue;
     struct sembuf semaphoreBufor;
@@ -64,8 +72,12 @@ static void semaphoreUp(int nr){
     semaphoreBufor.sem_op = 1;
     semaphoreBufor.sem_flg = SEM_UNDO;
     returnValue = semop(semaphoreId, &semaphoreBufor, 1);
-    if(returnValue == -1  && errno != EINTR){
-        perror("Problem with close a semaphore.");
-        exit(EXIT_FAILURE);
+    if(returnValue == -1){
+        if(errno == EINTR){
+            semaphoreUp(nr);
+        } else{
+            perror("Problem with close a semaphore.");
+            exit(EXIT_FAILURE);
+        }
     }
 }
