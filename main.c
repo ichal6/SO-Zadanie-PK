@@ -16,7 +16,7 @@ static void deleteSemaphore(void);
 static void setSemaphore(void);
 
 int const count = 3;
-int const sizeOfSemafor = 5;
+int const sizeOfSemaphore = 5;
 key_t keyForsemaphore;
 
 int main(){
@@ -93,7 +93,7 @@ static void deleteSemaphore(void){
 static void setSemaphore(void){
     int ustaw_sem;
 
-    for(int i = 0; i < sizeOfSemafor; i++){
+    for(int i = 0; i < sizeOfSemaphore; i++){
         ustaw_sem = semctl(semaphoreId, i, SETVAL, 0);
         if(ustaw_sem == -1){
             char errorMessage[100];
